@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.insigma.mvc.dao.sysmanager.log.LogMapper">
+	<!-- 保存 -->
+	<insert id="saveLogInfo"  parameterType="SysLog">
+	   <selectKey resultType="java.lang.String" order="BEFORE" keyProperty="logid">
+            SELECT sys_guid() from dual
+        </selectKey>
+        insert into sys_log(
+        logid ,
+        interfacetype ,
+        message ,
+        logtime ,
+        cost ,
+        stackmsg ,
+        exceptiontype ,
+        usergent ,
+        ipaddr ,
+        referer ,
+        url ,
+        userid ,
+        cookie ,
+        appkey ,
+        queryparam ,
+        method ,
+        success ,
+        responsemsg,
+        token
+        )
+        values (
+        #{logid, jdbcType=VARCHAR} ,
+        #{interfacetype,jdbcType=VARCHAR} ,
+        #{message,jdbcType=VARCHAR} ,
+        sysdate ,
+        #{cost,jdbcType=VARCHAR} ,
+        #{stackmsg,jdbcType=CLOB} ,
+        #{exceptiontype,jdbcType=VARCHAR} ,
+        #{usergent,jdbcType=VARCHAR} ,
+        #{ipaddr,jdbcType=VARCHAR} ,
+        #{referer,jdbcType=VARCHAR} ,
+        #{url,jdbcType=VARCHAR} ,
+        #{userid,jdbcType=VARCHAR} ,
+        #{cookie,jdbcType=VARCHAR} ,
+        #{appkey,jdbcType=VARCHAR} ,
+        #{queryparam,jdbcType=CLOB} ,
+        #{method,jdbcType=VARCHAR} ,
+        #{success,jdbcType=VARCHAR} ,
+        #{responsemsg,jdbcType=CLOB},
+        #{token,jdbcType=VARCHAR}
+        )
+	</insert>
+	
+	<!-- 查询日志列表 -->
+	<select id="queryLogList" parameterType="SysLog" resultType="SysLog">
+	select t.logid, to_char(logtime,'yyyy-MM-dd HH:mm:ss') logtime_string,t.cost,t.usergent,t.url,t.userid,t.method  from SYS_log  t order by logtime desc 
+	</select>
+	
+	<!-- 通过日志编号查询日志详情 -->
+	<select id="queryLogById" parameterType="String" resultType="SysLog">
+	select 
+		t.logid, 
+		to_char(logtime,'yyyy-MM-dd HH:mm:ss') logtime_string,
+		t.cost,t.usergent,
+		t.url,
+		t.userid,
+		t.method,
+		t.cookie,
+		t.queryparam,
+		t.message,
+		t.exceptiontype,
+		t.stackmsg
+	from SYS_log  t where t.logid=#{logid}
+	</select>
+	
+	<!-- 查询应用异常日志记录 -->
+	<select id="queryErrorLogList" parameterType="SysErrorLog" resultType="SysErrorLog">
+	select 
+		t.logid,
+		to_char(logtime,'yyyy-MM-dd HH:mm:ss') logtime_string,
+		t.message,
+		t.usergent,
+		t.url,
+		t.userid,
+	    t.exceptiontype 
+	from SYS_errorlog  t 
+	order by logtime desc 
+	</select>
+	
+	
+	<!-- 通过日志编号查询日志详情 -->
+	<select id="queryErrorLogById" parameterType="String" resultType="SysErrorLog">
+	select
+		t.logid,
+		to_char(logtime,'yyyy-MM-dd HH:mm:ss') logtime_string,
+		t.message,
+		t.usergent,
+		t.url,
+		t.userid,
+	    t.exceptiontype,
+	    t.stackmsg  
+	from SYS_errorlog  t where  t.logid=#{logid}
+	</select>
+	
+	
+	<!-- 根据接口路径返回接口类型代码 -->
+    <select id="getInterfaceTypeByUrl" parameterType="String" resultType="String">
+		select code_value from code_value where code_type='INTERFACETYPE' and regexp_like(#{url},code_column_name)
+	</select>
+	
+	<!-- 保存错误异常日志 -->
+	<insert id="saveSysErrorLog"  parameterType="SysErrorLog">
+	    <selectKey resultType="java.lang.String" order="BEFORE" keyProperty="logid"> 
+            SELECT sys_guid() from dual 
+        </selectKey>
+		insert into SYS_ERRORLOG(
+		    logid,
+			logtime,
+			stackmsg,
+			message,
+			exceptiontype,
+			usergent,
+			ipaddr,
+			referer,
+			url,
+			userid,
+			cookie
+		)
+		values (
+		    #{logid,jdbcType=VARCHAR}	,
+			sysdate,
+			#{stackmsg,jdbcType=CLOB}	,
+			#{message,jdbcType=VARCHAR}	,
+			#{exceptiontype,jdbcType=VARCHAR}	,
+			#{usergent,jdbcType=VARCHAR}	,
+			#{ipaddr,jdbcType=VARCHAR}	,
+			#{referer,jdbcType=VARCHAR}	,
+			#{url,jdbcType=VARCHAR}	,
+			#{userid,jdbcType=VARCHAR}	,
+			#{cookie,jdbcType=VARCHAR}	
+		)
+	</insert>
+</mapper>
